@@ -31,41 +31,36 @@ Route::get('/', function () {
 });
 
 Route::middleware('api.auth')->group(function () {
-    Route::post('logout', [ AuthenticatedSessionController::class, 'destroy' ])->name('logout');
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     Route::get('/dashboard', function () { return view('dashboard'); })->name('dashboard');
     Route::get('/api-message', function () { return view('tasks.api-message'); })->name('api-message');
 
     # Show all records
-    Route::get('/tasks', [ TaskController::class, 'index' ])->name('tasks.index');
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
 
     # Show records by 'search' data (typing in the 'Search' field)
-    Route::post('/tasks/search', [
-        TaskController::class, 'indexBySelectedParams' ]);
+    Route::post('/tasks/search', [TaskController::class, 'indexBySelectedParams']);
 
     # Show records by a current page number
-    Route::post('/tasks-by-page-number', [ TaskController::class, 'indexByPageNumber' ]);
+    Route::post('/tasks-by-page-number', [TaskController::class, 'indexByPageNumber']);
 
     # Store a new record
-    Route::post('/tasks', [ TaskController::class, 'store' ]);
+    Route::post('/tasks', [TaskController::class, 'store']);
 
     # Show the view to create a new record
-    Route::get('/tasks/create', [
-        TaskController::class, 'create' ])->name('tasks.create');
+    Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
 
     # Show a record
-    Route::get('/tasks/{id}', [
-        TaskController::class, 'show' ])->name('tasks.show');
+    Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
 
     # Show the view to edit a record
-    Route::get('/tasks/{id}/edit', [
-        TaskController::class, 'edit' ])->name('tasks.edit');
+    Route::get('/tasks/{id}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
 
     # Update a record
-    Route::patch('/tasks/{id}', [ TaskController::class, 'update' ]);
+    Route::patch('/tasks/{id}', [TaskController::class, 'update']);
 
     # Show the view to delete a record
-    Route::get('/tasks/{id}/destroy', [
-        TaskController::class, 'destroy' ])->name('tasks.destroy');
+    Route::get('/tasks/{id}/destroy', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
 
 Route::middleware('auth')->group(function () {
