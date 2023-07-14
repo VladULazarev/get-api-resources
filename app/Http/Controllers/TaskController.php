@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -10,13 +12,13 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource from the API.
      *
-     * @return \Illuminate\Http\Response
+     * @return View|RedirectResponse
      */
-    public function index()
+    public function index(): View|RedirectResponse
     {
         $response = Http::acceptJson()
-        ->withToken(session('TOKEN'))
-        ->get('https://api-laravel.getyoursite.info/api/tasks');
+            ->withToken(session('TOKEN'))
+            ->get('https://api-laravel.getyoursite.info/api/tasks');
 
         $data = $response->json();
 
@@ -32,10 +34,9 @@ class TaskController extends Controller
          # If '403' - not authorized, or '404' - not found
          } elseif ( $data['statusCode'] == '403' || $data['statusCode'] == '404' ) {
 
-             return to_route('api-message')
-             ->with([
+             return to_route('api-message')->with([
                  'message' => 'You have no tasks.',
-                 'link'    => '/tasks/create',
+                 'link' => '/tasks/create',
                  'button-text' => 'Create a task'
              ]);
          }
@@ -45,13 +46,13 @@ class TaskController extends Controller
      * Display a listing of the resource from the API by page number.
      *
      * @see  public\build\assets\admin.js -- 3. Click 'pager' link
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function indexByPageNumber()
+    public function indexByPageNumber(): View
     {
         $response = Http::acceptJson()
-        ->withToken(session('TOKEN'))
-        ->get(request()->carrentPage);
+            ->withToken(session('TOKEN'))
+            ->get(request()->carrentPage);
 
         $data = $response->json();
 
@@ -65,9 +66,9 @@ class TaskController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function create()
+    public function create(): View
     {
         return view('tasks.create');
     }
@@ -75,22 +76,22 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage of the API.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return View
      */
-    public function store(Request $request)
+    public function store(Request $request): View
     {
         $request->validate([
-            'name'        => 'bail|required|string|min:2|max:255',
-            'description'  => 'bail|required|string|min:2',
-            'priority'  => 'bail|required|string|min:3'
+            'name' => 'bail|required|string|min:2|max:255',
+            'description' => 'bail|required|string|min:2',
+            'priority' => 'bail|required|string|min:3'
         ]);
 
         $response = Http::withToken(session('TOKEN'))
-        ->post("https://api-laravel.getyoursite.info/api/tasks", [
-            'name' => $request->name,
-            'description' => $request->description,
-            'priority' => $request->priority
+            ->post("https://api-laravel.getyoursite.info/api/tasks", [
+                'name' => $request->name,
+                'description' => $request->description,
+                'priority' => $request->priority
         ]);
 
         $data = $response->json();
@@ -102,46 +103,44 @@ class TaskController extends Controller
      * Display the specified resource of the API.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return View|RedirectResponse
      */
-    public function show($id)
+    public function show($id): View|RedirectResponse
     {
         $response = Http::acceptJson()
-        ->withToken(session('TOKEN'))
-        ->get("https://api-laravel.getyoursite.info/api/tasks/{$id}");
+            ->withToken(session('TOKEN'))
+            ->get("https://api-laravel.getyoursite.info/api/tasks/{$id}");
 
         $data = $response->json();
 
-        return $this->checkStatusCode($data) ? $this->checkStatusCode($data)
-        : view('tasks.show', [ 'task' => $data['data'] ]);
+        return $this->checkStatusCode($data) ?: view('tasks.show', ['task' => $data['data']]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return View|RedirectResponse
      */
-    public function edit($id)
+    public function edit($id): View|RedirectResponse
     {
         $response = Http::acceptJson()
-        ->withToken(session('TOKEN'))
-        ->get("https://api-laravel.getyoursite.info/api/tasks/{$id}");
+            ->withToken(session('TOKEN'))
+            ->get("https://api-laravel.getyoursite.info/api/tasks/{$id}");
 
         $data = $response->json();
 
-        return $this->checkStatusCode($data) ? $this->checkStatusCode($data)
-        : view('tasks.edit', [ 'task' => $data['data'] ]);
+        return $this->checkStatusCode($data) ?: view('tasks.edit', ['task' => $data['data']]);
     }
 
     /**
      * Update the specified resource in storage of the API.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): View
     {
         $request->validate([
             'name'        => 'bail|required|string|min:2|max:255',
@@ -150,10 +149,10 @@ class TaskController extends Controller
         ]);
 
         $response = Http::withToken(session('TOKEN'))
-        ->patch("https://api-laravel.getyoursite.info/api/tasks/{$id}", [
-            'name' => $request->name,
-            'description' => $request->description,
-            'priority' => $request->priority
+            ->patch("https://api-laravel.getyoursite.info/api/tasks/{$id}", [
+                'name' => $request->name,
+                'description' => $request->description,
+                'priority' => $request->priority
         ]);
 
         $data = $response->json();
@@ -164,17 +163,16 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage of the API.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return RedirectResponse
      */
-    public function destroy($id)
+    public function destroy($id): RedirectResponse
     {
         $response = Http::acceptJson()
-        ->withToken(session('TOKEN'))
-        ->delete("https://api-laravel.getyoursite.info/api/tasks/{$id}");
+            ->withToken(session('TOKEN'))
+            ->delete("https://api-laravel.getyoursite.info/api/tasks/{$id}");
 
-        return to_route('api-message')
-        ->with([
+        return to_route('api-message')->with([
             'message' => $response->json()['message'],
             'link'    => '/tasks',
             'button-text' => 'Back to Tasks'
@@ -184,19 +182,17 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource from the API using 'params'.
      *
-     * @param  string  $columnName
-     * @param  string  $data the string from the search input field
+     * @return View|null
      * @see public\build\assets\admin.js -- 2. Type something in the 'Search...' field
-     * @return \Illuminate\Http\Response
      */
-    public function indexBySelectedParams()
+    public function indexBySelectedParams(): View|null
     {
         $columnName = request()->columnName;
         $data = request()->data;
 
         $response = Http::acceptJson()
-        ->withToken(session('TOKEN'))
-        ->get("https://api-laravel.getyoursite.info/api/tasks?filter={$columnName}:{$data}");
+            ->withToken(session('TOKEN'))
+            ->get("https://api-laravel.getyoursite.info/api/tasks?filter={$columnName}:{$data}");
 
         $data = $response->json();
 
@@ -209,7 +205,6 @@ class TaskController extends Controller
 
          # If '403' - not authorized, or '404' - not found
          } elseif ( $data['statusCode'] == '403' || $data['statusCode'] == '404' ) {
-
             return null;
          }
     }
@@ -217,8 +212,8 @@ class TaskController extends Controller
     /**
      * Check the status code from the API.
      *
-     * @param  json  $data
-     * @return \Illuminate\Http\Response
+     * @param $data
+     * @return RedirectResponse|void
      */
     public static function checkStatusCode($data)
     {
@@ -226,13 +221,12 @@ class TaskController extends Controller
         # we have nothing to return, and just set 'TRUE'
         if (! isset($data['statusCode']) ) {
 
-           TRUE;
+           return;
 
         # If '403' - not authorized, or '404' - not found
         } elseif ( $data['statusCode'] == '403' || $data['statusCode'] == '404' ) {
 
-            return to_route('api-message')
-            ->with([
+            return to_route('api-message')->with([
                 'message' => $data['message'],
                 'link'    => '/tasks',
                 'button-text' => 'Back to Tasks'
